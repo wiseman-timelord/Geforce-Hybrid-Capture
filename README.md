@@ -11,4 +11,5 @@ The plan for the file structure...
 .\installer.py   (install libraries in `.venv`)
 .\launcher.py    (run main program)
 .\scripts\***.py (other scripts for program).
+.\data\temporary.json
 ```
