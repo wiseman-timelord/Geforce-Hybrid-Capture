@@ -1,9 +1,10 @@
 @echo off
-:: Script: Geforce-Hybrid-Capture.bat
+:: Geforce-Hybrid-Capture – Windows 8.1+ / Python 3.11
 setlocal enabledelayedexpansion
-
-:: Change to the script's directory to ensure proper path resolution
 cd /d "%~dp0"
+
+set "VENV=.venv"
+set "PY=%VENV%\Scripts\python.exe"
 
 :MAIN_MENU
 cls
@@ -11,69 +12,41 @@ echo ===========================================================================
 echo    Geforce-Hybrid-Capture: Batch Menu
 echo ===============================================================================
 echo.
-echo.
-echo.
-echo.
-echo.
-echo.
-echo.
 echo    1) Launch Geforce-Hybrid-Capture
 echo.
-echo    2) Install Requirements
-echo.
-echo.
-echo.
-echo.
-echo.
-echo.
-echo.
+echo    2) Install Requirements (fresh every time)
 echo.
 echo -------------------------------------------------------------------------------
-set /p choice="Selection; Menu Options = 1-2, Quit Program = Q: "
+set /p choice="Selection; Menu Options = 1-2, Quit = Q: "
 
-if /i "%choice%"=="1" call :LAUNCH
-if /i "%choice%"=="2" call :INSTALL
-if /i "%choice%"=="Q" call :QUIT
-if /i "%choice%"=="1" goto MAIN_MENU
-if /i "%choice%"=="2" goto MAIN_MENU
+if /i "%choice%"=="1" goto LAUNCH
+if /i "%choice%"=="2" goto INSTALL
 if /i "%choice%"=="Q" exit /b 0
-echo Invalid selection. Please try again.
+
+echo Invalid selection.
 pause
 goto MAIN_MENU
 
 :LAUNCH
-cls
-echo ===============================================================================
-echo    Launching Geforce-Hybrid-Capture
-echo ===============================================================================
-echo.
-echo Starting application...
-python launcher.py
-echo.
-pause
-goto :eof
+if not exist "%PY%" (
+    echo.
+    echo  Virtual environment not found. Run option 2 first.
+    echo.
+    pause
+    goto MAIN_MENU
+)
+call "%VENV%\Scripts\activate.bat"
+"%PY%" launcher.py
+goto MAIN_MENU
 
 :INSTALL
-cls
-echo ===============================================================================
-echo    Installing Requirements
-echo ===============================================================================
+if exist "%VENV%" (
+    echo  Removing old virtual environment...
+    rmdir /s /q "%VENV%" >nul 2>&1
+)
+echo Running installer...
+"%~dp0installer.py"
 echo.
-echo Installing Python dependencies...
-python installer.py
-echo.
-echo Installation complete.
+echo Installer finished.
 pause
-goto :eof
-
-:QUIT
-cls
-echo ===============================================================================
-echo    Exiting Program
-echo ===============================================================================
-echo.
-echo Exiting program...
-echo Thank you for using Geforce-Hybrid-Capture.
-echo.
-timeout /t 2 /nobreak >nul
-goto :eof
+goto MAIN_MENU
