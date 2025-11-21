@@ -1,9 +1,14 @@
-# installer.py  –  one-shot, idempotent, Windows-only, Python 3.11
-# Does everything the batch needs:  venv → pip → deps → folders → json → report
+# installer.py – one-shot, idempotent, Windows-only, Python 3.11
+# Does everything the batch needs: venv → pip → deps → folders → json → report
 import os, sys, subprocess, json, platform, shutil
 
 VENV_DIR   = ".venv"
-REQ_LIST   = ["av>=12.0.0"]          # extend as needed
+REQ_LIST   = [
+    "av>=12.0.0",
+    "d3dshot>=0.1.5",      # Desktop Duplication API screen capture
+    "numpy>=1.21.0",       # Required by d3dshot for optimal performance
+    "comtypes>=1.1.14"     # Required by d3dshot for COM interfaces
+]
 PY_VER_MIN = (3, 7)
 PY_VER_MAX = (3, 11)                 # 3.12+ warned against
 
@@ -56,8 +61,10 @@ def write_json():
     cfg = {
         "resolution": {"width": 1920, "height": 1080},
         "fps": 30,
-        "codec": "libx264",
-        "output_path": "Output"
+        "codec": "h264_nvenc",  # Changed to NVENC by default
+        "output_path": "Output",
+        "bitrate": "5M",  # Added bitrate control
+        "preset": "medium"  # NVENC preset: fast, medium, slow, hq, etc.
     }
     with open(cfg_path, "w") as f:
         json.dump(cfg, f, indent=4)
